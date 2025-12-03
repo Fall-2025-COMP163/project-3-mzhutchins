@@ -2,7 +2,7 @@
 COMP 163 - Project 3: Quest Chronicles
 Game Data Module - Starter Code
 
-Name: [Your Name Here]
+Name: Marcellus Hutchins
 
 AI Usage: [Document any AI assistance used]
 
@@ -21,6 +21,68 @@ from custom_exceptions import (
 # ============================================================================
 
 def load_quests(filename="data/quests.txt"):
+    filepath = os.path.join(filename)
+
+    if not os.path.exists(filepath):
+        raise MissingDataFileError()
+
+    try:
+        with open(filepath, 'r') as f:
+            lines = f.read().strip().split('\n\n')
+    except Exception:
+        raise CorruptedDataError
+
+    raw_data = lines
+
+    quest_data_dict = {}
+
+    for q_data in raw_data:
+        quest = {}
+
+        data = q_data.strip().split('\n')
+
+        try:
+            for line in data:
+                if ':' not in line:
+                    raise InvalidDataFormatError()
+
+                key, value = line.split(":", 1)
+                key = key.strip()
+                value = value.strip()
+
+                if key in ["REWARD_XP", "REWARD_GOLD", "REQUIRED_LEVEL"]:
+                    value = int(value)
+
+                quest[key] = value
+
+            if "QUEST_ID" not in quest:
+                raise InvalidDataFormatError()
+
+            quest_id = quest["QUEST_ID"]
+
+            if "TITLE" not in quest or "DESCRIPTION" not in quest or \
+                    "REWARD_XP" not in quest or "REWARD_GOLD" not in quest or \
+                    "REQUIRED_LEVEL" not in quest:
+                raise InvalidDataFormatError()
+
+            if "PREREQUISITE" in quest:
+                prerequisite = quest["PREREQUISITE"]
+            else:
+                prerequisite = "NONE"
+
+            quest_data_dict[quest_id] = {
+                "title": quest["TITLE"],
+                "description": quest["DESCRIPTION"],
+                "reward_xp": quest["REWARD_XP"],
+                "reward_gold": quest["REWARD_GOLD"],
+                "required_level": quest["REQUIRED_LEVEL"],
+                "prerequisite": prerequisite
+            }
+
+        except ValueError:
+            raise InvalidDataFormatError("Save file format is invalid.")
+
+    return quest_data_dict
     """
     Load quest data from file
     
@@ -44,6 +106,7 @@ def load_quests(filename="data/quests.txt"):
     pass
 
 def load_items(filename="data/items.txt"):
+
     """
     Load item data from file
     

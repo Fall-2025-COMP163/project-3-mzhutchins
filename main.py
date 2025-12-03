@@ -2,13 +2,14 @@
 COMP 163 - Project 3: Quest Chronicles
 Main Game Module - Starter Code
 
-Name: [Your Name Here]
+Name: Marcellus Hutchins
 
 AI Usage: [Document any AI assistance used]
 
 This is the main game file that ties all modules together.
 Demonstrates module integration and complete game flow.
 """
+from random import choice
 
 # Import all our custom modules
 import character_manager
@@ -33,6 +34,18 @@ game_running = False
 # ============================================================================
 
 def main_menu():
+    print('Main Menu Options:'
+          '(1) New Game\n'
+          '(2) Load Game\n'
+          '(3) Exit\n')
+    player_choice = int(input("Select your choice: "))
+    if player_choice == 1:
+        player_choice = 'New Game'
+    elif player_choice == 2:
+        player_choice = 'Load Game'
+    elif player_choice == 3:
+        player_choice = 'Exit'
+    return player_choice
     """
     Display main menu and get player choice
     
@@ -51,6 +64,16 @@ def main_menu():
     pass
 
 def new_game():
+    character_name = input("Please enter your character's name: ")
+    character_class = input("Please enter your character's class: ")
+    try:
+        new_character = character_manager.create_character(character_name, character_class)
+        character_manager.save_character(new_character, 1)
+        game_loop()
+    except InvalidCharacterClassError:
+        print("Invalid character class entered. Please try again.")
+
+        
     """
     Start a new game
     
@@ -72,6 +95,21 @@ def new_game():
     pass
 
 def load_game():
+    save_chr = (character_manager.list_saved_characters())
+    for Char, name in enumerate(save_chr, start=1):
+        print(f"{Char}. {name}")
+    try:
+        character_name = int(input("Please enter your character #"))
+        character_manager.load_character(character_name)
+        game_loop()
+    except CharacterNotFoundError:
+        print("Invalid character entered. Please try again.")
+    except SaveFileCorruptedError:
+        print('Save file is corrupt')
+
+
+
+
     """
     Load an existing saved game
     
@@ -94,6 +132,12 @@ def load_game():
 # ============================================================================
 
 def game_loop():
+    while game_running:
+       player_choice = game_menu()
+        if player_choice == 1
+
+        save_game()
+
     """
     Main game loop - shows game menu and processes actions
     """
@@ -110,6 +154,15 @@ def game_loop():
     pass
 
 def game_menu():
+    print("\n=== GAME MENU ===")
+    print("1. View Character Stats")
+    print("2. View Inventory")
+    print("3. Quest Menu")
+    print("4. Explore (Find Battles)")
+    print("5. Shop")
+    print("6. Save and Quit")
+    player_choice = int(input("Select your choice: "))
+    return player_choice
     """
     Display game menu and get player choice
     
@@ -131,6 +184,8 @@ def game_menu():
 # ============================================================================
 
 def view_character_stats():
+    character_manager.load_character(current_character,1)
+    quest_handler.get_quest_completion_percentage(current_character,all_quests)
     """Display character information"""
     global current_character
     
@@ -142,8 +197,23 @@ def view_character_stats():
 
 def view_inventory():
     """Display and manage inventory"""
+
     global current_character, all_items
-    
+    try:
+        inventory_system.display_inventory(current_character,all_items)
+        print('Do you wish to..\n 1. Use item\n 2. Equip weapon\n Equip armor\n 3.Drop item')
+        player_choice = int(input("Select your choice: "))
+        item_choice = int(input('select item: '))
+        if player_choice == 1:
+            inventory_system.use_item(current_character, item_choice, all_items)
+        elif player_choice == 2:
+            inventory_system.equip_weapon(current_character, item_choice, all_items)
+        elif player_choice == 3:
+            inventory_system.equip_armor(current_character, item_choice, all_items)
+        else:
+            inventory_system.remove_item_from_inventory(current_character, item_choice)
+    except Exception as e:
+        print(e)
     # TODO: Implement inventory menu
     # Show current inventory
     # Options: Use item, Equip weapon/armor, Drop item
@@ -151,7 +221,18 @@ def view_inventory():
     pass
 
 def quest_menu():
-    """Quest management menu"""
+    try:
+        print("\n=== QUEST MENU ===")
+        """Quest management menu"""
+        quest_choice = int(input('What quest are you on?'))
+        print(quest_handler.get_active_quests(current_character,all_quests))
+        print(quest_handler.get_available_quests(current_character,all_quests))
+        print(quest_handler.get_completed_quests(current_character,all_quests))
+        print(quest_handler.accept_quest(current_character,quest_choice,all_quests))
+        print(quest_handler.abandon_quest(current_character,quest_choice))
+        print('Back')
+    except Exception as e:
+        print(e)
     global current_character, all_quests
     
     # TODO: Implement quest menu
@@ -167,6 +248,16 @@ def quest_menu():
     pass
 
 def explore():
+    try:
+        enemy = combat_system.get_random_enemy_for_level(current_character)
+        combat_system.SimpleBattle(current_character, enemy)
+        dead = character_manager.is_character_dead(current_character)
+        if dead is False:
+            return combat_system.get_victory_rewards(enemy)
+        else:
+            return handle_character_death()
+    except Exception as e:
+        print(e)
     """Find and fight random enemies"""
     global current_character
     
@@ -202,6 +293,15 @@ def save_game():
     pass
 
 def load_game_data():
+    try:
+        game_data.load_quests()
+        game_data.load_items()
+    except MissingDataFileError as e:
+        print(e)
+        print('creating defualt data file')
+        game_data.create_default_data_files()
+    except InvalidDataFormatError as e:
+        print(e)
     """Load all quest and item data from files"""
     global all_quests, all_items
     
@@ -213,6 +313,12 @@ def load_game_data():
     pass
 
 def handle_character_death():
+    print('You have Died\n would you like to quit now or revive?')
+    death_choie = int(input('(1) Quit\n(2) Revive\n'))
+    if death_choie == 1:
+        game_running = False
+    else:
+        character_manager.revive_character(current_character)
     """Handle character death"""
     global current_character, game_running
     

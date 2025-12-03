@@ -115,7 +115,7 @@ class SimpleBattle:
     def start_battle(self):
         while self.character['health'] >= 0 and self.enemy['health'] >= 0:
             if self.character['health'] > 0:
-                raise CharacterDeadError
+                raise CharacterDeadError('Character is Dead')
             elif self.character['health'] == 0:
                 battle_results = {'winner' : 'enemy',
                                   'xp_gained' : 0,
@@ -161,7 +161,7 @@ class SimpleBattle:
             elif player_choice == 3:
                 self.attempt_escape()
         else:
-            raise CombatNotActiveError
+            raise CombatNotActiveError('You are not in Combat')
 
         """
         Handle player's turn
@@ -186,7 +186,7 @@ class SimpleBattle:
             self.character['health'] -= damage
             return self.character['health']
         else:
-            raise CombatNotActiveError
+            raise CombatNotActiveError('You are not in Combat')
         """
         Handle enemy's turn - simple AI
         
@@ -301,7 +301,7 @@ def use_special_ability(character, enemy):
         return print(f"{character['class']} uses {special_ability} cooldown is {cooldown}")
 
     else:
-        raise AbilityOnCooldownError
+        raise AbilityOnCooldownError('Ablity on Cooldown')
 
 
     """

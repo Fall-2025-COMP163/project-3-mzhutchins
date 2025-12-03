@@ -31,17 +31,17 @@ def accept_quest(character, quest_id, quest_data_dict):
 
     required_level = quest["required_level"]
     if character["level"] < required_level:
-        raise InsufficientLevelError()
+        raise InsufficientLevelError('Insufficient level')
 
     prerequisite = quest["prerequisite"]
 
     if prerequisite != "NONE":
         if prerequisite not in character["completed_quests"]:
-            raise QuestRequirementsNotMetError()
+            raise QuestRequirementsNotMetError('Prerequisite not met')
     if quest_id in character["completed_quests"]:
-        raise QuestAlreadyCompletedError()
+        raise QuestAlreadyCompletedError('Quest already completed')
     if quest_id in character["active_quests"]:
-        raise QuestRequirementsNotMetError()
+        raise QuestRequirementsNotMetError('Quest already active')
     character["active_quests"].append(quest_id)
 
     return True
@@ -79,11 +79,11 @@ def accept_quest(character, quest_id, quest_data_dict):
 
 def complete_quest(character, quest_id, quest_data_dict):
     if quest_id not in quest_data_dict:
-        raise QuestNotFoundError()
+        raise QuestNotFoundError('Quest not found')
 
     quest = quest_data_dict[quest_id]
     if quest_id not in character["active_quests"]:
-        raise QuestNotActiveError
+        raise QuestNotActiveError('Quest not active')
     else:
         character["active_quests"].remove(quest_id)
         character["completed_quests"].append(quest_id)
@@ -127,7 +127,7 @@ def abandon_quest(character, quest_id):
         character["active_quests"].remove(quest_id)
         return True
     else:
-        raise QuestNotActiveError
+        raise QuestNotActiveError('Quest not active')
     """
     Remove a quest from active quests without completing it
     
@@ -234,7 +234,7 @@ def get_quest_prerequisite_chain(quest_id, quest_data_dict):
     for quest_id in quest_data_dict.items():
         prerequisite_chain.append(quest_data_dict['prerequisite'][quest_id])
     else:
-        raise QuestNotFoundError
+        raise QuestNotFoundError('Quest not found')
     """
     Get the full chain of prerequisites for a quest
     
@@ -356,7 +356,7 @@ def validate_quest_prerequisites(quest_data_dict):
         if prerequisite == "NONE":
             continue
         if prerequisite not in quest_data_dict:
-            raise QuestNotFoundError()
+            raise QuestNotFoundError('Quest prerequisite not found')
 
     return True
     """

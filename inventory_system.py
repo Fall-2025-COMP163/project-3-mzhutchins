@@ -25,7 +25,7 @@ MAX_INVENTORY_SIZE = 20
 
 def add_item_to_inventory(character, item_id):
     if len(character['inventory']) >= MAX_INVENTORY_SIZE:
-        raise InventoryFullError()
+        raise InventoryFullError('Inventory full')
     else:
         character['inventory'].append(item_id)
         return True
@@ -50,7 +50,7 @@ def remove_item_from_inventory(character, item_id):
         character.inventory.remove(item_id)
         return True
     else:
-        raise ItemNotFoundError()
+        raise ItemNotFoundError('Item not found')
 
     """
     Remove an item from character's inventory
@@ -131,9 +131,9 @@ def use_item(character, item_id, item_data):
                 character[stat_name] += value
             character["inventory"].remove(item_id)
         else:
-            raise InvalidItemTypeError()
+            raise InvalidItemTypeError('Invalid item type')
     else:
-        raise ItemNotFoundError()
+        raise ItemNotFoundError('item not found')
     return f"Used {item_id}. {stat_name} increased by {value}."
     """
     Use a consumable item from inventory
@@ -279,7 +279,7 @@ def unequip_weapon(character):
             character["inventory"].append(weapon_id)
             character["equipped_weapon"] = None
         else:
-            raise InventoryFullError
+            raise InventoryFullError('Inventory full')
         return weapon_id
     """
     Remove equipped weapon and return it to inventory
@@ -306,7 +306,7 @@ def unequip_armor(character):
             character["inventory"].append(armor_id)
             character["equipped_armor"] = None
         else:
-            raise InventoryFullError
+            raise InventoryFullError('Inventory full')
         return armor_id
     """
     Remove equipped armor and return it to inventory
@@ -328,9 +328,9 @@ def purchase_item(character, item_id, item_data):
             character.inventory.append(item_id)
             return True
         else:
-            return InsufficientResourcesError()
+            return InsufficientResourcesError('Not enough gold.')
     else:
-        return InventoryFullError
+        return InventoryFullError('Inventory full')
     """
     Purchase an item from a shop
     
@@ -358,7 +358,7 @@ def sell_item(character, item_id, item_data):
         character.gold += sell_price
         return sell_price
     else:
-        return ItemNotFoundError
+        return ItemNotFoundError('Item not found')
     """
     Sell an item for half its purchase cost
     

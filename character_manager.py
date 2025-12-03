@@ -106,9 +106,7 @@ def save_character(character, save_directory="data/save_games"):
             f.write(f"ACTIVE_QUESTS: {','.join(character['active_quests'])}\n")
             f.write(f"COMPLETED_QUESTS: {','.join(character['completed_quests'])}\n")
         return True
-    except (PermissionError, IOError) as e:
-        print(e)
-        return False
+
     """
     Save character to file
     
@@ -141,13 +139,13 @@ def load_character(character_name, save_directory="data/save_games"):
     filepath = os.path.join(save_directory, f"{character_name}_save.txt")
 
     if not os.path.exists(filepath):
-        raise CharacterNotFoundError()
+        raise CharacterNotFoundError('Character not found')
 
     try:
         with open(filepath, 'r') as f:
             lines = f.readlines()
     except Exception:
-        raise SaveFileCorruptedError()
+        raise SaveFileCorruptedError('save file corrupted')
 
     character = {}
 
@@ -236,18 +234,18 @@ def delete_character(character_name, save_directory="data/save_games"):
 # ============================================================================
 
 def gain_experience(character, xp_amount):
-    level_up_xp = character.level * 100
+    level_up_xp = character['level'] * 100
     character['experience'] += xp_amount
     lvl_ct = character['experience'] // level_up_xp
     for lvl in range(lvl_ct):
-        if character.experience >= level_up_xp:
+        if character['experience'] >= level_up_xp:
             character['level'] += 1
             character['max_health'] += 10
             character['strength'] += 2
             character['magic'] += 2
             character['health'] = character['max_health']
     else:
-        raise CharacterDeadError
+        raise CharacterDeadError('Character is Dead')
 
     """
     Add experience to character and handle level ups
@@ -273,7 +271,7 @@ def add_gold(character, amount):
     if (character['gold'] + amount) >= 0:
         character['gold'] += amount
     else:
-        raise ValueError
+        raise ValueError('Negative gold amount')
     return character['gold']
     """
     Add gold to character's inventory
@@ -345,13 +343,27 @@ def revive_character(character):
 # ============================================================================
 
 def validate_character_data(character):
-    rq_fields = {'name':"", 'class':"", 'level': int(), 'health':int(), 'max_health':int(),
-                'strength':int(), 'magic':int(), 'experience':int(), 'gold':int(), 'inventory':[],
-                'active_quests':[], 'completed_quests':[]}
-    if character[rq_fields] in character:
-        return True
-    else:
-        raise InvalidSaveDataError
+    rq_fields = {
+        'name': "",
+        'class': "",
+        'level': int(),
+        'health': int(),
+        'max_health': int(),
+        'strength': int(),
+        'magic': int(),
+        'experience': int(),
+        'gold': int(),
+        'inventory': [],
+        'active_quests': [],
+        'completed_quests': []
+    }
+
+    # FIX: Check required keys exist
+    for key in rq_fields:
+        if key not in character:
+            raise InvalidSaveDataError(f"Missing {key}")
+
+    return True
 
     """
     Validate that character dictionary has all required fields

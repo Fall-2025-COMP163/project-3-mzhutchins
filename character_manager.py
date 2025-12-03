@@ -88,8 +88,10 @@ def create_character(name, character_class):
 
 def save_character(character, save_directory="data/save_games"):
     try:
-
+        if not os.path.exists(save_directory):
+            os.makedirs(save_directory)
         filepath = os.path.join(save_directory, f"{character['name']}_save.txt")
+
 
         with open(filepath,'w+') as f:
 
@@ -106,7 +108,8 @@ def save_character(character, save_directory="data/save_games"):
             f.write(f"ACTIVE_QUESTS: {','.join(character['active_quests'])}\n")
             f.write(f"COMPLETED_QUESTS: {','.join(character['completed_quests'])}\n")
         return True
-
+    except (PermissionError,IOError) as e:
+        print(e)
     """
     Save character to file
     
@@ -162,8 +165,8 @@ def load_character(character_name, save_directory="data/save_games"):
 
             character[key.lower()] = value
 
-    except ValueError:
-        raise InvalidSaveDataError("Save file format is invalid or corrupted.")
+    except:
+        raise InvalidSaveDataError('Save file format is invalid or corrupted.')
 
     return character
     """

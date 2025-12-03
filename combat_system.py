@@ -23,10 +23,10 @@ from custom_exceptions import (
 
 def create_enemy(enemy_type):
     enemy_list = ['goblin', 'orc', 'dragon']
+    if enemy_type not in enemy_list:
+        raise InvalidTargetError()
     try:
-        if enemy_type not in enemy_list:
-            raise InvalidTargetError()
-        elif enemy_type == 'goblin':
+        if enemy_type == 'goblin':
             enemy = {'name':'Goblin',
                     'health':50,
                     'Strength':8,

@@ -46,8 +46,8 @@ def add_item_to_inventory(character, item_id):
     pass
 
 def remove_item_from_inventory(character, item_id):
-    if item_id in character.inventory:
-        character.inventory.remove(item_id)
+    if item_id in character['inventory']:
+        character['inventory'].remove(item_id)
         return True
     else:
         raise ItemNotFoundError('Item not found')
@@ -322,15 +322,15 @@ def unequip_armor(character):
 # ============================================================================
 
 def purchase_item(character, item_id, item_data):
-    if len(character.inventory) < MAX_INVENTORY_SIZE:
-        if item_data['cost'] < character.gold:
-            character.gold -= item_data['cost']
-            character.inventory.append(item_id)
+    if len(character['inventory']) < MAX_INVENTORY_SIZE:
+        if item_data['cost'] < character['gold']:
+            character['gold'] -= item_data['cost']
+            character['inventory'].append(item_id)
             return True
         else:
-            return InsufficientResourcesError('Not enough gold.')
+            raise InsufficientResourcesError('Not enough gold.')
     else:
-        return InventoryFullError('Inventory full')
+        raise InventoryFullError('Inventory full')
     """
     Purchase an item from a shop
     
